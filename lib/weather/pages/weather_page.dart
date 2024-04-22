@@ -14,13 +14,21 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
+  Key _animatedTextCityKey = UniqueKey();
+  Key _animatedTextTemperatureKey = UniqueKey();
+
   final _weatherService = WeatherService('790bccce523fa1baa12608405b6eff60');
   Weather? _weather;
+  String? _cityName;
+  double? _temperature;
+
   final TextStyle textStyle = const TextStyle(
     fontSize: 35.0,
     color: Colors.white,
     fontFamily: "Jersey"
   );
+
+
 
   String getWeatherAnimation(String? mainCondition) {
     if(mainCondition == null) return 'assets/sunny.json';
@@ -44,8 +52,6 @@ class _WeatherPageState extends State<WeatherPage> {
       case 'clear':
       default:
         return 'assets/sunny.json';
-
-
     }
   }
 
@@ -55,6 +61,8 @@ class _WeatherPageState extends State<WeatherPage> {
       final weather = await _weatherService.getWeather(latLon);
       setState(() {
         _weather = weather;
+        _animatedTextCityKey = UniqueKey();
+        _animatedTextTemperatureKey = UniqueKey();
       });
     }
     catch(e) {
@@ -78,6 +86,8 @@ class _WeatherPageState extends State<WeatherPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             AnimatedTextKit(
+              key: _animatedTextCityKey,
+              isRepeatingAnimation: true,
               animatedTexts: [
                 TyperAnimatedText(
                   _weather?.cityName ?? "Loading City...",
@@ -90,9 +100,10 @@ class _WeatherPageState extends State<WeatherPage> {
             ),
             Lottie.asset(getWeatherAnimation(_weather?.mainCondition)),
             AnimatedTextKit(
+              key: _animatedTextTemperatureKey,
               animatedTexts: [
                 TyperAnimatedText(
-                  '${_weather?.temperature.round()}°C',
+                  '${_weather?.temperature.round() ?? "Loading... "}°C',
                   textStyle: textStyle,
                   speed: const Duration(milliseconds: 70),
                 ),
